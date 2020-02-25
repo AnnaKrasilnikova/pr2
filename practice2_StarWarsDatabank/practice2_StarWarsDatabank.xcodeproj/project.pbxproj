@@ -15,6 +15,7 @@
 		E758D02C23F6ABE600687178 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E758D02A23F6ABE600687178 /* LaunchScreen.storyboard */; };
 		E758D03423F6C1E400687178 /* CharacterTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E758D03323F6C1E400687178 /* CharacterTableViewCell.swift */; };
 		E7967D8C2403FEEC003DD156 /* CharacterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7967D8B2403FEEC003DD156 /* CharacterViewController.swift */; };
+		E7C1B64B2405198E007E5D8E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E7C1B64A2405198E007E5D8E /* InfoPlist.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,6 +29,7 @@
 		E758D02D23F6ABE600687178 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E758D03323F6C1E400687178 /* CharacterTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterTableViewCell.swift; sourceTree = "<group>"; };
 		E7967D8B2403FEEC003DD156 /* CharacterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterViewController.swift; sourceTree = "<group>"; };
+		E7C1B64A2405198E007E5D8E /* InfoPlist.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = InfoPlist.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,6 +70,7 @@
 				E758D02A23F6ABE600687178 /* LaunchScreen.storyboard */,
 				E758D02823F6ABE600687178 /* Assets.xcassets */,
 				E758D02D23F6ABE600687178 /* Info.plist */,
+				E7C1B64A2405198E007E5D8E /* InfoPlist.strings */,
 				E758D02523F6ABE400687178 /* practice2_StarWarsDatabank.xcdatamodeld */,
 			);
 			path = practice2_StarWarsDatabank;
@@ -132,6 +135,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E758D02C23F6ABE600687178 /* LaunchScreen.storyboard in Resources */,
+				E7C1B64B2405198E007E5D8E /* InfoPlist.strings in Resources */,
 				E758D02923F6ABE600687178 /* Assets.xcassets in Resources */,
 				E758D02423F6ABE400687178 /* Main.storyboard in Resources */,
 			);
