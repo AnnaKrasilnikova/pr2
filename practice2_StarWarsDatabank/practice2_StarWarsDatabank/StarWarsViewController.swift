@@ -57,7 +57,7 @@ class StarWarsViewController: UIViewController {
         var downoadTask = URLRequest(url: url, cachePolicy: URLRequest.CachePolicy.reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 20)
         downoadTask.httpMethod = "GET"
         URLSession.shared.dataTask(with: downoadTask , completionHandler: {(data, response, error ) -> Void in
-            if error != nil {
+            guard error == nil else {
                 guard let errorMsg = error?.localizedDescription else { return }
                 self.getAlert(error: errorMsg)
                 return
@@ -87,7 +87,9 @@ class StarWarsViewController: UIViewController {
     
     func reloadData(){
         currentCharacterArray = characterArray
-        tableView.reloadData()
+        DispatchQueue.main.async { [weak self] in
+            self?.tableView.reloadData()
+        }
     }
     
     func getCharactersInfo (){
