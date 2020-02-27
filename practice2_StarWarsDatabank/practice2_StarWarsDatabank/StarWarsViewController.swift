@@ -94,9 +94,7 @@ class StarWarsViewController: UIViewController {
     
     func getCharactersInfo (){
         getInfoFromUrl(url: urlString)
-        DispatchQueue.main.async { [weak self] in
-            self?.tableView.reloadData()
-        }
+        reloadData()
     }
     
 }
