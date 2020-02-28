@@ -41,8 +41,6 @@ class StarWarsViewController: UIViewController {
    
     
     final let urlString = "https://swapi.co/api/people"
-    //var characterNamesArray = [String]()
-    //var currentCharacterNamesArray = [String]()
     var characterArray = [Character]()
     var currentCharacterArray = [Character]()
     var nextUrl = ""
@@ -59,8 +57,8 @@ class StarWarsViewController: UIViewController {
         var downoadTask = URLRequest(url: url, cachePolicy: URLRequest.CachePolicy.reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 20)
         downoadTask.httpMethod = "GET"
         URLSession.shared.dataTask(with: downoadTask , completionHandler: {(data, response, error ) -> Void in
-            if error != nil {
-                guard let errorMsg = error?.localizedDescription else {return}
+            guard error == nil else {
+                guard let errorMsg = error?.localizedDescription else { return }
                 self.getAlert(error: errorMsg)
                 return
             }
@@ -89,7 +87,9 @@ class StarWarsViewController: UIViewController {
     
     func reloadData(){
         currentCharacterArray = characterArray
-        tableView.reloadData()
+        DispatchQueue.main.async { [weak self] in
+            self?.tableView.reloadData()
+        }
     }
     
     func getCharactersInfo (){
@@ -135,11 +135,11 @@ extension StarWarsViewController: UITableViewDataSource {
         print(currentCharacterArray[indexPath.row])
         characterInfoToBeSend = currentCharacterArray[indexPath.row]
         print(characterInfoToBeSend)
-        self.performSegue(withIdentifier: "characterInfoSegue", sender: nil)
+        performSegue(withIdentifier: "characterInfoSegue", sender: nil)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        guard let characterInfo = segue.destination as? CharacterViewController else {return}
+        guard let characterInfo = segue.destination as? CharacterViewController else { return }
         characterInfo.character = characterInfoToBeSend
     }
 }
