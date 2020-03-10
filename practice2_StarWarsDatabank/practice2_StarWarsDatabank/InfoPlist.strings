@@ -1,0 +1,10 @@
+/* 
+  InfoPlist.strings
+  practice2_StarWarsDatabank
+
+  Created by Anna Krasilnikova on 25.02.2020.
+  Copyright © 2020 Anna Krasilnikova. All rights reserved.
+*/
+
+"CFBundleDisplayName" = "Star Wars";
+"CFBundleName" = "Star Wars";
