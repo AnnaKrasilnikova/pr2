@@ -38,20 +38,28 @@ class StarWarsViewController: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var searchBar: UISearchBar!
-   
-    
+       
     final let urlString = "https://swapi.co/api/people"
     var characterArray = [Character]()
-    var currentCharacterArray = [Character]()
+    var lastSearchCharactersArray = [Character]()
+    var filteredCharactersArray = [Character]()
     var nextUrl = ""
+    var isInfoReceived = false
     var characterInfoToBeSend = Character()
+    var searchTimer: Timer?
+    var numberOfSection = 1
+    final let tableRowHeight: CGFloat = 50
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        getCharactersInfo()
+        getInfoFromUrl(url: urlString)
+        while !isInfoReceived {
+            sleep(2)
+        }
         setUpSearchBar()
     }
 
+    //MARK: function for getting info about characters from API
     func getInfoFromUrl (url: String){
         guard let url = URL(string: url) else { return }
         var downoadTask = URLRequest(url: url, cachePolicy: URLRequest.CachePolicy.reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 20)
@@ -74,68 +82,124 @@ class StarWarsViewController: UIViewController {
             self.nextUrl = character.next ?? ""
             if self.nextUrl != "" {
                 self.getInfoFromUrl(url: self.nextUrl)
-            }
+            } else { self.isInfoReceived = true }
         }).resume()
-        reloadData()
     }
-    
+
+    //MARK: function for displaying error messages
     func getAlert(error: String){
         let alert = UIAlertController(title: "Error!", message: error, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Ok", style: .default))
         present(alert, animated: true, completion: nil)
     }
     
+    //MARK: function for saving info about last searching results
+    func addToSavedSearhResults(){
+        if filteredCharactersArray.count > 0 {
+            let tmpCharacterArray = lastSearchCharactersArray
+            lastSearchCharactersArray = filteredCharactersArray
+            for i in 0..<tmpCharacterArray.count {
+                if !lastSearchCharactersArray.contains(where:({ character -> Bool in character.name.contains(tmpCharacterArray[i].name)})){
+                        lastSearchCharactersArray.append(tmpCharacterArray[i])
+                    if lastSearchCharactersArray.count>10 { break }
+                }
+            }
+        }
+    }
+    
+    //MARK: reload tableView
     func reloadData(){
-        currentCharacterArray = characterArray
+        if lastSearchCharactersArray.count > 0 { numberOfSection = 2 }
         DispatchQueue.main.async { [weak self] in
             self?.tableView.reloadData()
         }
     }
     
-    func getCharactersInfo (){
-        getInfoFromUrl(url: urlString)
-        reloadData()
+    //MARK: function for filter characters array
+    @objc func doMyFilter() {
+        guard let searchingText = searchTimer?.userInfo as? String else { return}
+        if searchingText != "" {
+            filteredCharactersArray = characterArray.filter({ character -> Bool in
+            character.name.lowercased().contains(searchingText.lowercased())
+            })
+            if filteredCharactersArray.count == 0 {
+                getAlert(error: "No matches found!")
+            }
+            reloadData()
+        }
     }
-    
 }
+
 
 extension StarWarsViewController: UISearchBarDelegate {
     private func setUpSearchBar(){
         searchBar.delegate = self
-        reloadData()
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        guard !searchText.isEmpty else {
-            reloadData()
-            return
+        addToSavedSearhResults()
+        if let searchTimer = searchTimer {
+            searchTimer.invalidate()
         }
-        currentCharacterArray = characterArray.filter({ character -> Bool in
-            character.name.lowercased().contains(searchText.lowercased())
-        })
-        tableView.reloadData()
+        searchTimer = Timer.scheduledTimer(timeInterval: 1.5, target: self, selector: #selector(self.doMyFilter), userInfo: searchText, repeats: false)
     }
 }
 
 extension StarWarsViewController: UITableViewDataSource {
     
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return numberOfSection
+    }
+    
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        switch(section){
+            case 1: return "Last search results:"
+            default: return ""
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return tableRowHeight
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return currentCharacterArray.count
+        switch(section){
+            case 0: return filteredCharactersArray.count
+            case 1: return lastSearchCharactersArray.count
+            default: return 0
+        }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "characterCell")
         guard let characterCell = cell as? CharacterTableViewCell else { return UITableViewCell() }
-        characterCell.characterLabel.text = currentCharacterArray[indexPath.row].name
+        switch(indexPath.section){
+            case 0: characterCell.characterLabel.text = filteredCharactersArray[indexPath.row].name
+            case 1: characterCell.characterLabel.text = lastSearchCharactersArray[indexPath.row].name
+            default: break
+        }
         return characterCell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print(indexPath)
-        print(currentCharacterArray[indexPath.row])
-        characterInfoToBeSend = currentCharacterArray[indexPath.row]
-        print(characterInfoToBeSend)
+        switch(indexPath.section){
+            case 0:  characterInfoToBeSend = filteredCharactersArray[indexPath.row]
+            case 1:  characterInfoToBeSend = lastSearchCharactersArray[indexPath.row]
+            default: break
+        }
         performSegue(withIdentifier: "characterInfoSegue", sender: nil)
+    }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            switch(indexPath.section){
+                case 0: filteredCharactersArray.remove(at: indexPath.row)
+                tableView.deleteRows(at: [indexPath], with: .fade)
+                case 1: lastSearchCharactersArray.remove(at: indexPath.row)
+                tableView.deleteRows(at: [indexPath], with: .fade)
+                default: break
+            }
+        }
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -147,6 +211,6 @@ extension StarWarsViewController: UITableViewDataSource {
 extension StarWarsViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 50
+        return tableRowHeight
     }
 }
